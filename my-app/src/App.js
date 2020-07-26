@@ -1,34 +1,33 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import './App.css';
+import axios from 'axios';
 
 function App() {
-  const [songs, setSongs] = useState(null);
+  const [songs, setSongs] = useState({ entry: [] });
 
-  function fetchSongs() {
-    fetch('https://itunes.apple.com/us/rss/topalbums/limit=100/json')
-      .then(resp => resp.json())
-      .then(data => {
-        console.log(data.feed);
-        setSongs(data.feed);
-      })
-  }
+  useEffect(() => {
+    const fetchSongs = async () => {
+      const response = await axios.get('https://itunes.apple.com/us/rss/topalbums/limit=100/json')
+        setSongs(response.data.feed);
+        console.log(response.data.feed);
+    };
+
+    fetchSongs();
+
+  }, [] );
 
   return (
-    <div className="App">
+    <div>
 
-      <header>
+      <header  className="topItunesHeader">
         Top 100 Songs on ITunes
       </header>
 
-      <button onClick={fetchSongs}>get data</button>
-
-      <div className='songList'>
-        <div className='song'>
-          <h3>song title: </h3>
-          <h3>author: </h3>
-          <h3>entry: </h3>
-        </div>
-      </div>
+      <ul className='songList'>
+        {songs.entry.map(item => (
+          <li className='song' key={item.id.label}> {item.title.label} </li>
+        ))}
+      </ul>
 
     </div>
   );
